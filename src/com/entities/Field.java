@@ -1,4 +1,4 @@
-package entities;
+package com.entities;
 
 import javafx.util.Pair;
 

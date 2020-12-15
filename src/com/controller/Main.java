@@ -1,6 +1,6 @@
-package controller;
+package com.controller;
 
-import view.MenuFrame;
+import com.view.MenuFrame;
 
 public class Main {
     public static void main(String[] args) {

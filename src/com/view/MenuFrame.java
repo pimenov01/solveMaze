@@ -1,10 +1,10 @@
-package view;
+package com.view;
 
-import controller.Controller;
-import entities.Cell;
-import entities.MazeView;
-import entities.TypeOfCell;
-import generator.Direction;
+import com.controller.Controller;
+import com.entities.Cell;
+import com.entities.MazeView;
+import com.entities.TypeOfCell;
+import com.generator.Direction;
 import javafx.util.Pair;
 import javax.swing.*;
 import javax.swing.border.BevelBorder;

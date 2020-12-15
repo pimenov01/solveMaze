@@ -1,7 +1,7 @@
-package generator;
+package com.generator;
 
-import entities.Cell;
-import entities.Field;
+import com.entities.Cell;
+import com.entities.Field;
 
 import java.util.*;
 

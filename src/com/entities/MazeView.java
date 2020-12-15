@@ -1,4 +1,4 @@
-package entities;
+package com.entities;
 
 public class MazeView {
     private final int height;

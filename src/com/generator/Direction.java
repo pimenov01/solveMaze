@@ -1,4 +1,4 @@
-package generator;
+package com.generator;
 
 import javafx.util.Pair;
 

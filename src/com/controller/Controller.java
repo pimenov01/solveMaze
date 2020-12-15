@@ -1,7 +1,7 @@
-package controller;
+package com.controller;
 
-import entities.MazeView;
-import generator.Generator;
+import com.entities.MazeView;
+import com.generator.Generator;
 
 public class Controller {
 
