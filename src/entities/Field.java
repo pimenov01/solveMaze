@@ -67,8 +67,9 @@ public class Field {
             result1.append(answer[k]);
             result1.append('\n');
         }
-        //System.out.println(result1.toString()); show maze in the console
-        //return result.toString(); simplify maze (for girls)
+        //System.out.println(result.toString());//show maze in the console
+        //return result.toString(); //simplify maze (for girls)
+        //System.out.println(result1.toString()); //show maze in the console
         return result1.toString();
     }
 

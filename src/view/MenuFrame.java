@@ -238,6 +238,7 @@ public class MenuFrame extends JFrame {
                             }
                         }
                         solveMaze();
+                        lee_waveSolve();
                     }
                     break;
                     case KeyEvent.VK_UP: {
@@ -303,15 +304,29 @@ public class MenuFrame extends JFrame {
         panel.requestFocus();
     }
 
+    /**
+     * Solve the maze by traversing the graph in depth as follows:
+     * 1. The current cell becomes visited
+     * 2. If there are unvisited neighbors, go to a random neighbor
+     * 3. If there are no unvisited neighbors, go up the stack,
+     * if the stack is empty and no exit is found, then there is no exit,
+     * or it is unreachable, if the stack is not empty, look for an unvisited cell,
+     * if it is found, see point 2.
+     * 4. The exit is found, draw a path.
+     * If we want to enable this method of solving,
+     * we need to uncomment line 240.
+    */
     private void solveMaze() {
+        int bypassedCells = 0;
         Random random = new Random();
         Cell currentCell = field[entrance.getKey()][entrance.getValue()];
         Cell neighbourCell;
         Stack<Cell> stack = new Stack<>();
         do {
-            List<Cell> neighbours = getNeighbours(currentCell);
+            List<Cell> neighbours = getNeighbours(currentCell, true);
             if (neighbours.size() != 0) {
-                cells[currentCell.getX()][currentCell.getY()].setBackground(new Color(101, 163, 70));
+                cells[currentCell.getX()][currentCell.getY()].setBackground(new Color(231, 209, 65));
+                bypassedCells++;
                 int randNum = random.nextInt(neighbours.size());
                 neighbourCell = neighbours.get(randNum);
                 stack.push(currentCell);
@@ -319,6 +334,7 @@ public class MenuFrame extends JFrame {
                 currentCell.setVisited(true);
             } else if (stack.size() > 0) {
                 cells[currentCell.getX()][currentCell.getY()].setBackground(new Color(255, 255, 255));
+                bypassedCells--;
                 //cells[currentCell.getX()][currentCell.getY()].setBackground(new Color(205, 113, 138)); show cells we`ve bypassed
                 currentCell = stack.pop();
             } else {
@@ -327,9 +343,56 @@ public class MenuFrame extends JFrame {
             }
         }
         while (currentCell.getX() != exit.getKey() || currentCell.getY() != exit.getValue());
+        System.out.println("simple solver bypassed cells = " + (bypassedCells - 1));
     }
 
-    private List<Cell> getNeighbours(Cell cell) {
+    /**
+     * Solves the maze using the wave or the Lee method.
+     * It is like if water is pouring out of the current cell and
+     * flows to the finish, if it is achievable. The sequence
+     * number of the wave is placed in each cell. Next, we go from
+     * the exit to the cell with the lowest wave level to the start.
+     */
+    private void lee_waveSolve() {
+        Cell[][] m = field;
+        int[][] d = new int[m.length][m.length];
+        int waveCount = 1;
+        Queue<Cell> queue = new ArrayDeque<>();
+        Cell startCell = field[entrance.getKey()][entrance.getValue()];
+        Cell endSell = field[exit.getKey()][exit.getValue()];
+        queue.add(startCell);
+        d[startCell.getY()][startCell.getX()] = waveCount;
+        while (d[endSell.getX()][endSell.getY()] == 0) {
+            Cell curr = queue.poll();
+            if (curr == null) {
+                JOptionPane.showMessageDialog(null, "There is no exit in the maze");
+                throw new IllegalArgumentException("There is no exit in the maze");
+            }
+            List<Cell> neighbours = getNeighbours(curr, false);
+            for (Cell cell : neighbours) {
+                if (d[cell.getX()][cell.getY()] == 0) {
+                    d[cell.getX()][cell.getY()] = d[curr.getX()][curr.getY()] + 1;
+                    queue.add(cell);
+                }
+            }
+        }
+        waveCount = d[endSell.getX()][endSell.getY()];
+        System.out.println("wave solver bypassed cells = " + (waveCount - 2));
+        Cell curr1 = field[exit.getKey()][exit.getValue()];
+        while (!curr1.equals(startCell)) {
+            List<Cell> neighbours = getNeighbours(curr1, false);
+            for (Cell cell : neighbours) {
+                if (d[cell.getX()][cell.getY()] == waveCount - 1) {
+                    cells[cell.getX()][cell.getY()].setBackground(new Color(101, 163, 70));
+                    curr1 = cell;
+                    break;
+                }
+            }
+            waveCount--;
+        }
+    }
+
+    private List<Cell> getNeighbours(Cell cell, boolean easyAlgorithm) {
         List<Cell> neighbours = new ArrayList<>();
         for (Direction direction : Direction.values()) {
             if (cell.getX() + direction.getCoords().getKey() > 0 &&
@@ -337,8 +400,14 @@ public class MenuFrame extends JFrame {
                     cell.getY() + direction.getCoords().getValue() > 0 &&
                     cell.getY() + direction.getCoords().getValue() < field.length) {
                 Cell mazeCellCurrent = field[cell.getX() + direction.getCoords().getKey()][cell.getY() + direction.getCoords().getValue()];
-                if ((mazeCellCurrent.toString().equals("X") || mazeCellCurrent.toString().equals(".")) && !mazeCellCurrent.isVisited()) {
-                    neighbours.add(mazeCellCurrent); //add to array
+                if (easyAlgorithm) {
+                    if ((mazeCellCurrent.toString().equals("X") || mazeCellCurrent.toString().equals(".")) && !mazeCellCurrent.isVisited()) {
+                        neighbours.add(mazeCellCurrent); //add to array
+                    }
+                } else {
+                    if ((mazeCellCurrent.toString().equals("X") || mazeCellCurrent.toString().equals(".") || mazeCellCurrent.toString().equals("*"))) {
+                        neighbours.add(mazeCellCurrent); //add to array
+                    }
                 }
             }
         }
